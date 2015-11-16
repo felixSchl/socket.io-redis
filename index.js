@@ -5,7 +5,6 @@
 
 var uid2 = require('uid2');
 var redis = require('redis').createClient;
-var msgpack = require('msgpack-js');
 var Adapter = require('socket.io-adapter');
 var Emitter = require('events').EventEmitter;
 var debug = require('debug')('socket.io-redis');
@@ -94,7 +93,7 @@ function adapter(uri, opts){
   Redis.prototype.onmessage = function(pattern, channel, msg){
     var pieces = channel.split('#');
     if (uid == pieces.pop()) return debug('ignore same uid');
-    var args = msgpack.decode(msg);
+    var args = JSON.parse(msg);
 
     if (args[0] && args[0].nsp === undefined) {
       args[0].nsp = '/';
@@ -200,7 +199,7 @@ function adapter(uri, opts){
 
   Redis.prototype.broadcast = function(packet, opts, remote){
     Adapter.prototype.broadcast.call(this, packet, opts);
-    if (!remote) pub.publish(key, msgpack.encode([packet, opts]));
+    if (!remote) pub.publish(key, JSON.stringify([packet, opts]));
   };
 
 

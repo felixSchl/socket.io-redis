@@ -220,17 +220,17 @@ function adapter(uri, opts){
       multi.srem(prefix + '#' + socketIds[i], Object.keys(self.sids[socketIds[i]]));
     }
     multi.exec(function(err, replies){
-      process.exit();
+      process.exit(1);
     });
   }
  
   // //do something when app is closing
-  // process.on('exit', exitHandler.bind(null,{cleanup:true}));
-  process.on('SIGTERM', exitHandler);
-  process.on('SIGINT', exitHandler);
-  process.on('SIGQUIT', exitHandler);
-  process.on('uncaughtException', exitHandler);
- 
+  if (process.env['NODE_ENV'] === 'production') {
+    process.on('SIGTERM', exitHandler);
+    process.on('SIGINT', exitHandler);
+    process.on('SIGQUIT', exitHandler);
+    process.on('uncaughtException', exitHandler);
+  }
 
   return Redis;
 
